@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,19 @@ export class UsersService {
 
     async delete(id: string) {
         return this.prisma.user.delete({where: {id}})
+    }
+
+    async update(id: string, data: Partial<CreateUserDto>) {
+        const userExists = await this.prisma.user.findUnique({ where: { id } });
+    
+        if (!userExists) {
+            throw new Error(`L'utilisateur avec l'ID ${id} n'existe pas.`);
+        }
+    
+        return this.prisma.user.update({
+            where: { id },
+            data,
+        });
     }
 
 
