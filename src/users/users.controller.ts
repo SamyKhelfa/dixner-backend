@@ -1,20 +1,24 @@
-import { Controller, Get, Post, Param, Delete, Body, Put } from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, Body, Put, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiTags, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth-guard';
+import { ApiTags, ApiOperation, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @ApiOperation({summary: 'Récupérer tous les utilisateurs'})
+    @ApiOperation({summary: 'Récupérer tous les utilisateursn (admin uniquement)'})
+    @UseGuards(JwtAuthGuard)
     @Get()
     async findAll(){
         return this.usersService.findAll()
     }
 
     @ApiOperation({summary:'Récupérer un utilisateur par ID'})
+    @UseGuards(JwtAuthGuard)
     @ApiParam({name: 'id', type: 'string', description:`ID de l'utilisateur`})
     @Get(':id')
     async findOne(@Param('id') id:string){
@@ -28,14 +32,15 @@ export class UsersController {
         return this.usersService.create(data)
     }
 
-    @ApiOperation({summary: 'Supprimer un utilisateur'})
-    @ApiParam({name:'id', type: 'String', description:`ID de l'utilisateur`})
+    @ApiOperation({ summary: 'Supprimer un utilisateur (seulement si c’est son propre compte)' })
+    @UseGuards(JwtAuthGuard)
     @Delete(':id')
     async delete(@Param('id') id: string) {
         return this.usersService.delete(id)
     }
 
     @ApiOperation({ summary: 'Mettre à jour un utilisateur'})
+    @UseGuards(JwtAuthGuard)
     @ApiParam({name:'id', type:'string', description:`ID de l'utilisateur`})
     @ApiBody({type: UpdateUserDto})
     @Put(':id')
