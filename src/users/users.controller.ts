@@ -56,7 +56,11 @@ export class UsersController {
     @ApiParam({ name: 'id', type: 'string', description: `ID de l'utilisateur` })
     @ApiBody({ type: UpdateUserDto })
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
+        if(req.user.userId != id){
+            throw new ForbiddenException("Vous ne pouvez modifier que votre propre compte")
+        }
+
         return this.usersService.update(id, updateUserDto);
     }
 }
