@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,27 +8,47 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(uuid())
+  id        String      @id @default(uuid())
   name      String
-  email     String  @unique
+  email     String      @unique
   password  String
   groups    GroupUser[]
-  createdAt DateTime @default(now())
+  events    EventUser[]
+  createdAt DateTime    @default(now())
+}
+
+model Event {
+  id        String    @id @default(uuid())
+  name      String
+  date      DateTime
+  location  String
+  users     EventUser[]
+  group     Group?
+}
+
+model EventUser {
+  id      String  @id @default(uuid())
+  userId  String
+  eventId String
+  user    User    @relation(fields: [userId], references: [id])
+  event   Event   @relation(fields: [eventId], references: [id])
+  @@unique([userId, eventId])
 }
 
 model Group {
-  id          String  @id @default(uuid())
-  name        String
-  members     GroupUser[]
-  points      Int     @default(0)
-  createdAt   DateTime @default(now())
+  id        String    @id @default(uuid())
+  eventId   String    @unique
+  event     Event     @relation(fields: [eventId], references: [id])
+  members   GroupUser[]
+  points    Int       @default(0)
+  createdAt DateTime  @default(now())
 }
 
 model GroupUser {
   id      String @id @default(uuid())
   userId  String
   groupId String
-  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group  Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user   User  @relation(fields: [userId], references: [id])
+  group  Group @relation(fields: [groupId], references: [id])
   @@unique([userId, groupId])
 }
