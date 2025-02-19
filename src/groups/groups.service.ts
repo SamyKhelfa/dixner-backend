@@ -35,7 +35,7 @@ export class GroupsService {
     });
   }
 
-  async removeUserToGroup(groupId: string, userId: string) {
+  async removeUserFromGroup(groupId: string, userId: string) {
     return this.prisma.groupUser.deleteMany({
       where: { groupId, userId },
     });
