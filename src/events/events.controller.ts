@@ -18,6 +18,7 @@ import {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { get } from 'http';
 
 @ApiTags('Events')
 @Controller('events')
@@ -59,5 +60,21 @@ export class EventsController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.eventsService.delete(id);
+  }
+
+  @ApiOperation({
+    summary:
+      'Récupérer tous les évènements auxquels un utilisateur est inscrit',
+  })
+  @ApiParam({
+    name: 'userId',
+    type: 'string',
+    description: "ID de l'utilisateur",
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:userId')
+  async getEventsforUser(@Param('userId') userId: string) {
+    return this.eventsService.getEventsforUser(userId);
   }
 }

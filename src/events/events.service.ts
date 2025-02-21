@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
+import { group } from 'console';
 
 @Injectable()
 export class EventsService {
@@ -68,5 +69,18 @@ export class EventsService {
     }
 
     return { message: "Utilisateur inscrit à l'événement et ajouté au groupe" };
+  }
+
+  async getEventsforUser(userId: string) {
+    return this.prisma.event.findMany({
+      where: {
+        users: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      include: { group: true },
+    });
   }
 }
