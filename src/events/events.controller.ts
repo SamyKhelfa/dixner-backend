@@ -20,6 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { get } from 'http';
 import { RegisterEventDto } from './dto/register-event.dto';
+import { Role } from 'src/auth/decorators/role.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('Events')
 @Controller('events')
@@ -41,6 +43,8 @@ export class EventsController {
 
   @ApiOperation({ summary: 'Créer un nouvel événement (Admin uniquement)' })
   @ApiBody({ type: CreateEventDto })
+  @Role('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   async create(@Body() data: CreateEventDto) {
     return this.eventsService.create(data);
@@ -70,6 +74,8 @@ export class EventsController {
 
   @ApiOperation({ summary: 'Supprimer un événement (Admin uniquement)' })
   @ApiParam({ name: 'id', type: 'string', description: "ID de l'événement" })
+  @Role('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.eventsService.delete(id);

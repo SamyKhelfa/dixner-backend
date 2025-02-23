@@ -10,6 +10,7 @@ import {
   Req,
   ForbiddenException,
   Logger,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth-guard';
@@ -21,6 +22,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Role } from 'src/auth/decorators/role.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -33,7 +36,8 @@ export class UsersController {
   @ApiOperation({
     summary: 'Récupérer tous les utilisateurs (admin uniquement)',
   })
-  @UseGuards(JwtAuthGuard)
+  @Role('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   async findAll() {
     return this.usersService.findAll();
@@ -100,5 +104,12 @@ export class UsersController {
     }
 
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Role('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Patch(':id/promote')
+  async promoteToAdmin(@Param('id') userId: string) {
+    return this.usersService.promoteToAdmin(userId);
   }
 }
