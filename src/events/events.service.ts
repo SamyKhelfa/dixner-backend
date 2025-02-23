@@ -41,7 +41,7 @@ export class EventsService {
   async registerUser(eventId: string, userId: string) {
     const event = await this.prisma.event.findUnique({
       where: { id: eventId },
-      include: { group: true },
+      include: { group: true, users: true },
     });
 
     if (!event) {
@@ -56,6 +56,13 @@ export class EventsService {
 
     if (alreadyRegistered) {
       throw new Error('Utilisateur déjà inscrit à cet événement');
+    }
+
+    const currentParticipants = event.users.length;
+    if (currentParticipants >= event.maxParticipants) {
+      throw new Error(
+        'Le nombre maximal de participants est atteint pour cet évènement',
+      );
     }
 
     await this.prisma.eventUser.create({

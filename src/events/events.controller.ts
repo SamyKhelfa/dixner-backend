@@ -53,6 +53,18 @@ export class EventsController {
   @Post(':id/register')
   async registerUser(@Param('id') eventId: string, @Request() req) {
     const userId = req.user.userId;
+
+    const event = await this.eventsService.findOne(eventId);
+    if (!event) {
+      throw new Error("L'événement n'existe pas.");
+    }
+
+    if (event.users && event.users.length >= event.maxParticipants) {
+      throw new Error(
+        'Le nombre maximal de participants est atteint pour cet événement.',
+      );
+    }
+
     return this.eventsService.registerUser(eventId, userId);
   }
 

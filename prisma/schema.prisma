@@ -24,6 +24,7 @@ model Event {
   location  String
   users     EventUser[]
   group     Group?
+  maxParticipants Int       @default(10)
 }
 
 model EventUser {
