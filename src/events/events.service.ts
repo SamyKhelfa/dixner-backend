@@ -83,4 +83,54 @@ export class EventsService {
       include: { group: true },
     });
   }
+
+  async unregisterUser(eventId: string, userId: string) {
+    const userEvent = await this.prisma.eventUser.findUnique({
+      where: {
+        eventId_userId: {
+          eventId,
+          userId,
+        },
+      },
+    });
+
+    if (!userEvent) {
+      throw new Error("L'utilisateur n'est pas inscrit à cet événement.");
+    }
+
+    return this.prisma.eventUser.delete({
+      where: {
+        eventId_userId: {
+          eventId,
+          userId,
+        },
+      },
+    });
+  }
+
+  async unregisterAuthenticatedUser(eventId: string, userId: string) {
+    const userEvent = await this.prisma.eventUser.findUnique({
+      where: {
+        eventId_userId: {
+          eventId,
+          userId,
+        },
+      },
+    });
+
+    if (!userEvent) {
+      throw new Error("Vous n'êtes pas inscrit à cet événement.");
+    }
+
+    await this.prisma.eventUser.delete({
+      where: {
+        eventId_userId: {
+          eventId,
+          userId,
+        },
+      },
+    });
+
+    return { message: "Vous vous êtes désinscrit de l'événement avec succès." };
+  }
 }

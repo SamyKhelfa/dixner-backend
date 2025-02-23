@@ -19,6 +19,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { get } from 'http';
+import { RegisterEventDto } from './dto/register-event.dto';
 
 @ApiTags('Events')
 @Controller('events')
@@ -76,5 +77,37 @@ export class EventsController {
   @Get('user/:userId')
   async getEventsforUser(@Param('userId') userId: string) {
     return this.eventsService.getEventsforUser(userId);
+  }
+
+  @ApiOperation({ summary: "Se désinscrire d'un événement" })
+  @ApiParam({ name: 'id', type: 'string', description: "ID de l'événement" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/unregister')
+  async unregisterUser(
+    @Param('id') eventId: string,
+    @Body() data: RegisterEventDto,
+  ) {
+    if (!data.userId) {
+      throw new Error('userId est requis pour se désinscrire');
+    }
+    return this.eventsService.unregisterUser(eventId, data.userId);
+  }
+
+  @ApiOperation({
+    summary: "Se désinscrire de l'événement (utilisateur connecté)",
+  })
+  @ApiParam({ name: 'id', type: 'string', description: "ID de l'événement" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/unregister/me')
+  async unregisterAuthenticatedUser(
+    @Param('id') eventId: string,
+    @Request() req,
+  ) {
+    return this.eventsService.unregisterAuthenticatedUser(
+      eventId,
+      req.user.userId,
+    );
   }
 }
