@@ -62,4 +62,12 @@ export class ReservationsController {
   async delete(@Param('id') id: string) {
     return this.reservationsService.delete(id);
   }
+
+  @ApiOperation({ summary: 'Annuler sa réservation à un événement' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':eventId/cancel')
+  async cancelReservation(@Param('eventId') eventId: string, @Request() req) {
+    return this.reservationsService.cancelReservation(req.user.userId, eventId);
+  }
 }

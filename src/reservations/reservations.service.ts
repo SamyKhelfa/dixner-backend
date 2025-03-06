@@ -43,4 +43,20 @@ export class ReservationsService {
       where: { id },
     });
   }
+
+  async cancelReservation(userId: string, eventId: string) {
+    const reservation = await this.prisma.reservation.findUnique({
+      where: { userId_eventId: { userId, eventId } },
+    });
+
+    if (!reservation) {
+      throw new Error('Aucune reservation trouvée pour cet évènement');
+    }
+
+    await this.prisma.reservation.delete({
+      where: { userId_eventId: { userId, eventId } },
+    });
+
+    return { message: 'Votre réservation a bien été annulée.' };
+  }
 }
