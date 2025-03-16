@@ -9,7 +9,7 @@ async function bootstrap() {
     .setTitle('Dixner API')
     .setDescription('API pour gérer les événements Dixner')
     .setVersion('1.0')
-    .addBearerAuth() 
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
